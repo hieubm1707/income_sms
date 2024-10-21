@@ -6,6 +6,7 @@ import 'package:telephony/telephony.dart';
 
 import 'app.dart';
 import 'widgets/tele_bot.dart';
+import 'widgets/tele_default_values.dart';
 
 @pragma("vm:entry-point")
 final Telephony telephonyInstance = Telephony.instance;
@@ -14,11 +15,15 @@ final Telephony telephonyInstance = Telephony.instance;
 final Future<SharedPreferences> preferences = SharedPreferences.getInstance();
 
 @pragma("vm:entry-point")
-Future<void> bootstrap(final FutureOr<Widget> Function() builder) async {
+Future<void> bootstrap(
+  final FutureOr<Widget> Function() builder, {
+  String env = 'prod',
+}) async {
   // needed if you intend to initialize in the `main` function
   WidgetsFlutterBinding.ensureInitialized();
 
   await smsConfig();
+  TelegramDefaultValue.instance.init(env);
   runApp(const MyApp());
 }
 

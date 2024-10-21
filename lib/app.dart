@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 // import 'package:income_sms/widgets/ez_input.dart';
 // import 'package:income_sms/widgets/tele_bot.dart';
 
-import 'bootstrap.dart';
-import 'widgets/constant.dart';
+import 'widgets/ez_button.dart';
+import 'widgets/ez_cache.dart';
+import 'widgets/ez_input.dart';
 import 'widgets/tele_bot.dart';
 
 @pragma("vm:entry-point")
@@ -48,12 +49,11 @@ class _AppViewState extends State<AppView> {
   }
 
   void initData() async {
-    final prefs = await preferences;
-    final apiToken = prefs.getString(teleApiKey);
-    final chatId = prefs.getString(telteChatId);
+    final apiToken = await EzCache.getApiToken();
+    final chatId = await EzCache.getChatId();
 
-    _apiTokenController.text = apiToken ?? '';
-    _chatIdController.text = chatId ?? '';
+    _apiTokenController.text = apiToken;
+    _chatIdController.text = chatId;
   }
 
   @override
@@ -63,76 +63,74 @@ class _AppViewState extends State<AppView> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: Center(
-        child: InkWell(
-          onTap: () => TelegramBotHelper.sendTestMessage(),
-          child: const Text(
-            'Hello!',
-            style: TextStyle(fontSize: 24),
-          ),
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.all(20),
+          children: [
+            InkWell(
+              onTap: () => TelegramBotHelper.sendTestMessage(),
+              child: const Text(
+                'Hello!',
+                style: TextStyle(fontSize: 24),
+              ),
+            ),
+            const SizedBox(height: 20),
+            EzInput(
+              label: 'Telegram Bot API Token',
+              labelStyle: Theme.of(context).textTheme.bodyLarge,
+              hintText: 'Enter your telegram bot api token',
+              controller: _apiTokenController,
+              margin: const EdgeInsets.only(top: 12),
+              validator: (text) {
+                final value = text ?? '';
+                if (value.isEmpty) {
+                  return 'Please enter your telegram bot api token';
+                }
+                return null;
+              },
+            ),
+            EzInput(
+              label: 'Telegram Chat ID',
+              labelStyle: Theme.of(context).textTheme.bodyLarge,
+              hintText: 'Enter your telegram chat id',
+              controller: _chatIdController,
+              margin: const EdgeInsets.only(top: 12),
+              validator: (text) {
+                final value = text ?? '';
+                if (value.isEmpty) {
+                  return 'Please enter your telegram chat id';
+                }
+                return null;
+              },
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: EzButton(
+                    onPressed: onClear,
+                    title: 'Clear',
+                    buttonType: EzButtonType.outline,
+                  ),
+                ),
+                Expanded(
+                  child: EzButton(
+                    onPressed: onPressed,
+                    title: 'Save',
+                  ),
+                ),
+              ],
+            )
+          ],
         ),
       ),
-      // body: Form(
-      //   key: _formKey,
-      //   child: ListView(
-      //     padding: const EdgeInsets.all(20),
-      //     children: [
-      //       EzInput(
-      //         label: 'Telegram Bot API Token',
-      //         labelStyle: Theme.of(context).textTheme.bodyLarge,
-      //         hintText: 'Enter your telegram bot api token',
-      //         controller: _apiTokenController,
-      //         margin: const EdgeInsets.only(top: 12),
-      //         validator: (text) {
-      //           final value = text ?? '';
-      //           if (value.isEmpty) {
-      //             return 'Please enter your telegram bot api token';
-      //           }
-      //           return null;
-      //         },
-      //       ),
-      //       EzInput(
-      //         label: 'Telegram Chat ID',
-      //         labelStyle: Theme.of(context).textTheme.bodyLarge,
-      //         hintText: 'Enter your telegram chat id',
-      //         controller: _chatIdController,
-      //         margin: const EdgeInsets.only(top: 12),
-      //         validator: (text) {
-      //           final value = text ?? '';
-      //           if (value.isEmpty) {
-      //             return 'Please enter your telegram chat id';
-      //           }
-      //           return null;
-      //         },
-      //       ),
-      //       Row(
-      //         children: [
-      //           Expanded(
-      //             child: EzButton(
-      //               onPressed: onClear,
-      //               title: 'Clear',
-      //               buttonType: EzButtonType.outline,
-      //             ),
-      //           ),
-      //           Expanded(
-      //             child: EzButton(
-      //               onPressed: onPressed,
-      //               title: 'Save',
-      //             ),
-      //           ),
-      //         ],
-      //       )
-      //     ],
-      //   ),
-      // ),
     );
   }
 
   void onPressed() async {
     if (_formKey.currentState!.validate()) {
-      final prefs = await preferences;
-      await prefs.setString(teleApiKey, _apiTokenController.text);
-      await prefs.setString(telteChatId, _chatIdController.text);
+      await EzCache.setApiToken(_apiTokenController.text);
+      await EzCache.setChatId(_chatIdController.text);
 
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
         content: Text("Saved successfully!"),
@@ -144,8 +142,7 @@ class _AppViewState extends State<AppView> {
     _apiTokenController.clear();
     _chatIdController.clear();
 
-    final prefs = await preferences;
-    await prefs.setString(teleApiKey, '');
-    await prefs.setString(telteChatId, '');
+    await EzCache.setApiToken(_apiTokenController.text);
+    await EzCache.setChatId(_chatIdController.text);
   }
 }

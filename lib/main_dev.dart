@@ -3,7 +3,5 @@ import 'bootstrap.dart';
 
 @pragma("vm:entry-point")
 void main() {
-  bootstrap(
-    MyApp.new,
-  );
+  bootstrap(MyApp.new, env: 'dev');
 }
