@@ -384,7 +384,7 @@ packages:
   telephony:
     dependency: "direct main"
     description:
-      path: "packages/Telephony"
+      path: "packages/other_telephony"
       relative: true
     source: path
     version: "0.2.0"
