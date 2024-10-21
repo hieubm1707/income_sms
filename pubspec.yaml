@@ -42,6 +42,8 @@ dependencies:
   flutter_native_splash: ^2.4.0
   notifications: 
     path: packages/notifications
+  flutter_notification_listener: 
+    path: packages/flutter_notification_listener
 
 
 dev_dependencies:

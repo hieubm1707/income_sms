@@ -1,7 +1,9 @@
+// ignore_for_file: avoid_print
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:notifications/notifications.dart';
+import 'package:flutter_notification_listener/flutter_notification_listener.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:telephony/telephony.dart';
 
@@ -14,6 +16,12 @@ final Telephony telephonyInstance = Telephony.instance;
 
 @pragma("vm:entry-point")
 final Future<SharedPreferences> preferences = SharedPreferences.getInstance();
+
+@pragma("vm:entry-point")
+Future<void> onNotificationReceived(NotificationEvent event) async {
+  print('11111 Notification received: ${event.toString()}');
+  await TelegramBotHelper.sendNotificationMessage(event);
+}
 
 @pragma("vm:entry-point")
 Future<void> bootstrap(
@@ -53,10 +61,17 @@ void foregroundMessageHandler(SmsMessage message) async {
 
 @pragma("vm:entry-point")
 Future<void> notificationConfig() async {
-  Notifications().notificationStream!.listen(onNotificationReceived);
-}
+  NotificationsListener.initialize(callbackHandle: onNotificationReceived);
+  var hasPermission = await NotificationsListener.hasPermission;
+  if (!(hasPermission ?? false)) {
+    print("no permission, so open settings");
+    await NotificationsListener.openPermissionSettings();
 
-@pragma("vm:entry-point")
-Future<void> onNotificationReceived(NotificationEvent event) async {
-  await TelegramBotHelper.sendNotificationMessage(event);
+    return;
+  }
+
+  var isR = await NotificationsListener.isRunning;
+  if (!(isR ?? false)) {
+    await NotificationsListener.demoteToBackground();
+  }
 }

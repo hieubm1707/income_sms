@@ -3,7 +3,7 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
-import 'package:notifications/notifications.dart';
+import 'package:flutter_notification_listener/flutter_notification_listener.dart';
 import 'package:telephony/telephony.dart';
 
 import 'ez_cache.dart';
@@ -89,9 +89,9 @@ CONTENT: ${smsMessage.body}
       final message = """
 [SMS MESSAGE NOTIFICATION]
 PACKAGE NAME: ${event.packageName}
-DATE: ${event.timeStamp}
+DATE: ${event.createAt}
 TITLE: ${event.title}
-CONTENT: ${event.message}
+CONTENT: ${event.text}
 """;
       print('message: $message');
 
