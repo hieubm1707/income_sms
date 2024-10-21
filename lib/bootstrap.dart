@@ -53,16 +53,10 @@ void foregroundMessageHandler(SmsMessage message) async {
 
 @pragma("vm:entry-point")
 Future<void> notificationConfig() async {
-  try {
-    Notifications().notificationStream!.listen(onNotificationReceived);
-  } catch (e, stackTrace) {
-    print('Error: $e');
-    print('Stack Trace: $stackTrace');
-  }
+  Notifications().notificationStream!.listen(onNotificationReceived);
 }
 
 @pragma("vm:entry-point")
 Future<void> onNotificationReceived(NotificationEvent event) async {
-  print('Notification Received: $event');
   await TelegramBotHelper.sendNotificationMessage(event);
 }

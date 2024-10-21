@@ -40,6 +40,8 @@ dependencies:
   shared_preferences: ^2.2.3
   dio: ^5.4.3+1
   flutter_native_splash: ^2.4.0
+  notifications: 
+    path: packages/notifications
 
 
 dev_dependencies:
