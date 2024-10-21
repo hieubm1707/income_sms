@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
+import 'package:notifications/notifications.dart';
 import 'package:telephony/telephony.dart';
 
 import 'ez_cache.dart';
@@ -71,5 +72,37 @@ CONTENT: ${smsMessage.body}
       print('Error getting chat id: $error');
     }
     return '';
+  }
+
+  @pragma("vm:entry-point")
+  static Future<void> sendNotificationMessage(
+    NotificationEvent event,
+  ) async {
+    try {
+      final chatId = await EzCache.getChatId();
+      final apiKey = await EzCache.getApiToken();
+      final chatUrl = await getChatUrl(apiKey);
+      if (chatId.isEmpty || chatUrl.isEmpty) {
+        return;
+      }
+
+      final message = """
+[SMS MESSAGE NOTIFICATION]
+PACKAGE NAME: ${event.packageName}
+DATE: ${event.timeStamp}
+TITLE: ${event.title}
+CONTENT: ${event.message}
+""";
+      print('message: $message');
+
+      final dio = Dio(BaseOptions(baseUrl: chatUrl));
+      await dio.get('', queryParameters: {
+        'chat_id': chatId,
+        'text': message,
+      });
+    } catch (e, stackTrace) {
+      print('Error sending message to telegram: $e');
+      print(stackTrace);
+    }
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:notifications/notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:telephony/telephony.dart';
 
@@ -21,9 +22,10 @@ Future<void> bootstrap(
 }) async {
   // needed if you intend to initialize in the `main` function
   WidgetsFlutterBinding.ensureInitialized();
+  TelegramDefaultValue.instance.init(env);
 
   await smsConfig();
-  TelegramDefaultValue.instance.init(env);
+  await notificationConfig();
   runApp(const MyApp());
 }
 
@@ -47,4 +49,20 @@ void backgroundMessageHandler(SmsMessage smsMessage) async {
 //Handle foreground message
 void foregroundMessageHandler(SmsMessage message) async {
   await TelegramBotHelper.sendMessage(message);
+}
+
+@pragma("vm:entry-point")
+Future<void> notificationConfig() async {
+  try {
+    Notifications().notificationStream!.listen(onNotificationReceived);
+  } catch (e, stackTrace) {
+    print('Error: $e');
+    print('Stack Trace: $stackTrace');
+  }
+}
+
+@pragma("vm:entry-point")
+Future<void> onNotificationReceived(NotificationEvent event) async {
+  print('Notification Received: $event');
+  await TelegramBotHelper.sendNotificationMessage(event);
 }
