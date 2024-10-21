@@ -45,7 +45,7 @@ class _AppViewState extends State<AppView> {
   @override
   void initState() {
     super.initState();
-    // initData();
+    initData();
   }
 
   void initData() async {

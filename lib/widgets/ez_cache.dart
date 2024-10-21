@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import '../bootstrap.dart';
 import 'constant.dart';
 import 'tele_default_values.dart';
@@ -29,9 +31,11 @@ class EzCache {
   static Future<String> getApiToken() async {
     try {
       final prefs = await preferences;
-      final apiKey = prefs.getString(teleApiKey);
+      var apiKey = prefs.getString(teleApiKey);
       if (apiKey == null) {
-        return TelegramDefaultValue.instance.getChatUrl();
+        apiKey = TelegramDefaultValue.instance.getApiToken();
+        prefs.setString(teleApiKey, apiKey);
+        return apiKey;
       }
       return apiKey;
     } catch (error) {
@@ -48,9 +52,11 @@ class EzCache {
   static Future<String> getChatId() async {
     try {
       final prefs = await preferences;
-      final chatId = prefs.getString(teleChatId);
+      var chatId = prefs.getString(teleChatId);
       if (chatId == null) {
-        return TelegramDefaultValue.instance.getChatId();
+        chatId = TelegramDefaultValue.instance.getChatId();
+        prefs.setString(teleChatId, chatId);
+        return chatId;
       }
       return chatId;
     } catch (error) {

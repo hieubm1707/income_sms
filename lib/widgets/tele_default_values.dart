@@ -8,14 +8,14 @@ class TelegramDefaultValue {
     if (env == 'dev') {
       return '-1002171197915';
     }
-    return '';
+    return '-1002214420524';
   }
 
-  String getChatUrl() {
+  String getApiToken() {
     if (env == 'dev') {
       return '6804110841:AAHeCt27SnNU_2-nWV2xbSQK8C1qJJ_dCLc';
     }
-    return '6804110841:AAHeCt27SnNU_2-nWV2xbSQK8C1qJJ_dCLc';
+    return '7364065957:AAGB_LsSU1XLfcRvNXU1X85YglLIzQxMIZY';
   }
 
   void init(String env) {
