@@ -19,7 +19,6 @@ final Future<SharedPreferences> preferences = SharedPreferences.getInstance();
 
 @pragma("vm:entry-point")
 Future<void> onNotificationReceived(NotificationEvent event) async {
-  print('11111 Notification received: ${event.toString()}');
   await TelegramBotHelper.sendNotificationMessage(event);
 }
 

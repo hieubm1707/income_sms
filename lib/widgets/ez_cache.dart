@@ -10,24 +10,6 @@ class EzCache {
   EzCache._internal();
 
   @pragma("vm:entry-point")
-  Future<void> set(String key, dynamic value) async {
-    final prefs = await preferences;
-    prefs.setString(key, value);
-  }
-
-  @pragma("vm:entry-point")
-  Future<dynamic> get(String key) async {
-    final prefs = await preferences;
-    return prefs.getString(key);
-  }
-
-  @pragma("vm:entry-point")
-  Future<void> remove(String key) async {
-    final prefs = await preferences;
-    prefs.remove(key);
-  }
-
-  @pragma("vm:entry-point")
   static Future<String> getApiToken() async {
     try {
       final prefs = await preferences;
@@ -44,8 +26,9 @@ class EzCache {
     return '';
   }
 
-  static Future<void> setApiToken(String value) {
-    return _instance.set(teleApiKey, value);
+  static Future<bool> setApiToken(String value) async {
+    final prefs = await preferences;
+    return prefs.setString(teleApiKey, value);
   }
 
   @pragma("vm:entry-point")
@@ -65,7 +48,46 @@ class EzCache {
     return '';
   }
 
-  static Future<void> setChatId(String value) {
-    return _instance.set(teleChatId, value);
+  static Future<bool> setChatId(String value) async {
+    final prefs = await preferences;
+    return prefs.setString(teleChatId, value);
+  }
+
+  @pragma("vm:entry-point")
+  static Future<List<String>> getPushedNotificationList() async {
+    try {
+      final prefs = await preferences;
+      return prefs.getStringList(teleContentNotifications) ?? [];
+    } catch (error) {
+      print('Error getting chat id: $error');
+    }
+    return [];
+  }
+
+  @pragma("vm:entry-point")
+  static Future<bool> setPushedNotificationList(List<String> value) async {
+    final prefs = await preferences;
+    return prefs.setStringList(teleContentNotifications, value);
+  }
+
+  @pragma("vm:entry-point")
+  static Future<bool> clearPushedNotificationList() async {
+    final prefs = await preferences;
+    return prefs.remove(teleContentNotifications);
+  }
+
+  @pragma("vm:entry-point")
+  static Future<bool> checkExistInNotificationList(String value) async {
+    final list = await getPushedNotificationList();
+    final exist = list.contains(value);
+    if (!exist) {
+      list.add(value);
+      await setPushedNotificationList(list);
+    }
+    if (list.length >= 10000) {
+      list.removeRange(0, 5000);
+      await setPushedNotificationList(list);
+    }
+    return exist;
   }
 }

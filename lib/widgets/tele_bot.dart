@@ -1,10 +1,12 @@
 // ignore_for_file: constant_identifier_names,, avoid_print
 
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_notification_listener/flutter_notification_listener.dart';
 import 'package:telephony/telephony.dart';
+import 'package:crypto/crypto.dart';
 
 import 'ez_cache.dart';
 
@@ -79,6 +81,12 @@ CONTENT: ${smsMessage.body}
     NotificationEvent event,
   ) async {
     try {
+      final text =
+          '${event.packageName ?? ''}-${event.title ?? ''}-${event.text ?? ''}';
+      final hashData = sha256.convert(utf8.encode(text)).toString();
+      final existData = await EzCache.checkExistInNotificationList(hashData);
+      if (existData) return;
+
       final chatId = await EzCache.getChatId();
       final apiKey = await EzCache.getApiToken();
       final chatUrl = await getChatUrl(apiKey);
@@ -100,6 +108,17 @@ CONTENT: ${event.text}
         'chat_id': chatId,
         'text': message,
       });
+
+      if (event.packageName == 'com.VCB') {
+        final paymentDio = Dio(BaseOptions(
+          baseUrl: 'https://ad.express/api/basic/shipmentOrder/InputPayment',
+        ));
+        await paymentDio.post('', data: {
+          'token':
+              'aBKA8ymkx1EausKtieotS6SZFWKuuy5Tba8tUMUr1MYtWuQvOR93GlXOho4RD7Xh',
+          'content': event.text,
+        });
+      }
     } catch (e, stackTrace) {
       print('Error sending message to telegram: $e');
       print(stackTrace);

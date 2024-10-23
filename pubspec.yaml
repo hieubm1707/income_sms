@@ -44,6 +44,7 @@ dependencies:
     path: packages/notifications
   flutter_notification_listener: 
     path: packages/flutter_notification_listener
+  crypto: ^3.0.3
 
 
 dev_dependencies:
