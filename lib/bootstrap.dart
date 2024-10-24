@@ -31,7 +31,7 @@ Future<void> bootstrap(
   WidgetsFlutterBinding.ensureInitialized();
   TelegramDefaultValue.instance.init(env);
 
-  await smsConfig();
+  // await smsConfig();
   await notificationConfig();
   runApp(const MyApp());
 }
