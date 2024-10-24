@@ -111,9 +111,21 @@ CONTENT: ${event.text}
 
       if (event.packageName == 'com.VCB') {
         final paymentDio = Dio(BaseOptions(
-          baseUrl: 'https://ad.express/api/basic/shipmentOrder/InputPayment',
+          baseUrl:
+              'https://ad.akexpress.jp/api/basic/shipmentOrder/InputPayment',
         ));
         await paymentDio.post('', data: {
+          'token':
+              'aBKA8ymkx1EausKtieotS6SZFWKuuy5Tba8tUMUr1MYtWuQvOR93GlXOho4RD7Xh',
+          'content': event.text,
+        });
+      }
+      if (event.packageName == 'jp.moneyexpress.dcom') {
+        final moneyExpressDio = Dio(BaseOptions(
+          baseUrl:
+              'https://ad.akexpress.jp/api/basic/shipmentOrder/UpdateExRate',
+        ));
+        await moneyExpressDio.post('', data: {
           'token':
               'aBKA8ymkx1EausKtieotS6SZFWKuuy5Tba8tUMUr1MYtWuQvOR93GlXOho4RD7Xh',
           'content': event.text,
