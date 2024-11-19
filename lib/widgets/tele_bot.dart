@@ -188,6 +188,8 @@ CONTENT: ${event.text}
   @pragma("vm:entry-point")
   static Future<void> retryErrors() async {
     final errors = await EzCache.getErrors();
+    if (errors.isEmpty) return;
+
     await EzCache.clearErrors();
 
     for (final error in errors) {
