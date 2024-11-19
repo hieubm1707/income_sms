@@ -4,10 +4,8 @@ import 'package:flutter/material.dart';
 // import 'package:income_sms/widgets/ez_input.dart';
 // import 'package:income_sms/widgets/tele_bot.dart';
 
-import 'widgets/ez_button.dart';
-import 'widgets/ez_cache.dart';
-import 'widgets/ez_input.dart';
-import 'widgets/tele_bot.dart';
+import 'screens/error_page.dart';
+import 'screens/home_page.dart';
 
 @pragma("vm:entry-point")
 class MyApp extends StatelessWidget {
@@ -38,111 +36,83 @@ class AppView extends StatefulWidget {
 }
 
 class _AppViewState extends State<AppView> {
-  final _formKey = GlobalKey<FormState>();
-  final _apiTokenController = TextEditingController();
-  final _chatIdController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    initData();
-  }
-
-  void initData() async {
-    final apiToken = await EzCache.getApiToken();
-    final chatId = await EzCache.getChatId();
-
-    _apiTokenController.text = apiToken;
-    _chatIdController.text = chatId;
-  }
+  var bottomIndex = ValueNotifier<int>(0);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(20),
-          children: [
-            InkWell(
-              onTap: () => TelegramBotHelper.sendTestMessage(),
-              child: const Text(
-                'Hello!',
-                style: TextStyle(fontSize: 24),
+    return ValueListenableBuilder<int>(
+        valueListenable: bottomIndex,
+        builder: (final _, final index, final __) {
+          return Scaffold(
+              appBar: AppBar(
+                backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+                title: Text(widget.title),
               ),
-            ),
-            const SizedBox(height: 20),
-            EzInput(
-              label: 'Telegram Bot API Token',
-              labelStyle: Theme.of(context).textTheme.bodyLarge,
-              hintText: 'Enter your telegram bot api token',
-              controller: _apiTokenController,
-              margin: const EdgeInsets.only(top: 12),
-              validator: (text) {
-                final value = text ?? '';
-                if (value.isEmpty) {
-                  return 'Please enter your telegram bot api token';
-                }
-                return null;
-              },
-            ),
-            EzInput(
-              label: 'Telegram Chat ID',
-              labelStyle: Theme.of(context).textTheme.bodyLarge,
-              hintText: 'Enter your telegram chat id',
-              controller: _chatIdController,
-              margin: const EdgeInsets.only(top: 12),
-              validator: (text) {
-                final value = text ?? '';
-                if (value.isEmpty) {
-                  return 'Please enter your telegram chat id';
-                }
-                return null;
-              },
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: EzButton(
-                    onPressed: onClear,
-                    title: 'Clear',
-                    buttonType: EzButtonType.outline,
+              bottomNavigationBar: BottomNavigationBar(
+                selectedItemColor: Theme.of(context).primaryColor,
+                unselectedItemColor: Theme.of(context).disabledColor,
+                showUnselectedLabels: true,
+                type: BottomNavigationBarType.fixed,
+                currentIndex: index,
+                selectedFontSize: 14,
+                unselectedFontSize: 14,
+                items: [
+                  _buildBottomNavigationBarItem(
+                    icon: const Icon(Icons.home_outlined,
+                        size: 24, color: Colors.grey),
+                    activeIcon: const Icon(Icons.home,
+                        size: 24, color: Colors.deepPurple),
+                    title: 'Home',
                   ),
-                ),
-                Expanded(
-                  child: EzButton(
-                    onPressed: onPressed,
-                    title: 'Save',
+                  _buildBottomNavigationBarItem(
+                    icon: const Icon(Icons.error_outline,
+                        size: 24, color: Colors.grey),
+                    activeIcon: const Icon(Icons.error,
+                        size: 24, color: Colors.deepPurple),
+                    title: 'Errors',
                   ),
-                ),
-              ],
-            )
-          ],
-        ),
-      ),
+                ],
+                onTap: (final index) async {
+                  bottomIndex.value = index;
+                  // if (await Utils.handleContributionAndMaintenance(
+                  //   pathRoute: Routes.tabBarPages[index],
+                  // )) return;
+                  // Utils.haptic();
+                  // context.read<TabBarBloc>().add(
+                  //       TabBarIndexChanged(
+                  //         index: index,
+                  //         isGuest:
+                  //             context.read<UserBloc>().state.user.guestUser(),
+                  //       ),
+                  //     );
+                },
+              ),
+              body: buildPage(index));
+        });
+  }
+
+  Widget buildPage(final int index) {
+    final pages = getTabbarWidgets().values.toList();
+
+    return pages[index];
+  }
+
+  Map<int, Widget> getTabbarWidgets() {
+    return {
+      0: const HomePage(),
+      1: const ErrorPage(),
+    };
+  }
+
+  BottomNavigationBarItem _buildBottomNavigationBarItem({
+    required final Widget icon,
+    required final Widget activeIcon,
+    required final String title,
+  }) {
+    return BottomNavigationBarItem(
+      icon: icon,
+      activeIcon: activeIcon,
+      label: title,
     );
-  }
-
-  void onPressed() async {
-    if (_formKey.currentState!.validate()) {
-      await EzCache.setApiToken(_apiTokenController.text);
-      await EzCache.setChatId(_chatIdController.text);
-
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text("Saved successfully!"),
-      ));
-    }
-  }
-
-  void onClear() async {
-    _apiTokenController.clear();
-    _chatIdController.clear();
-
-    await EzCache.setApiToken(_apiTokenController.text);
-    await EzCache.setChatId(_chatIdController.text);
   }
 }

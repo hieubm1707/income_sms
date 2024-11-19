@@ -1,6 +1,9 @@
 // ignore_for_file: avoid_print
 
+import 'dart:convert';
+
 import '../bootstrap.dart';
+import '../models/notification_error_model.dart';
 import 'constant.dart';
 import 'tele_default_values.dart';
 
@@ -89,5 +92,43 @@ class EzCache {
       await setPushedNotificationList(list);
     }
     return exist;
+  }
+
+  @pragma("vm:entry-point")
+  static Future<List<NotificationErrorModel>> getErrors() async {
+    try {
+      final prefs = await preferences;
+      final errors = prefs.getStringList(notificationErrors) ?? [];
+      return errors.map((e) {
+        final json = jsonDecode(e);
+        return NotificationErrorModel.fromJson(json);
+      }).toList();
+    } catch (error) {
+      print('Error getting chat id: $error');
+    }
+    return [];
+  }
+
+  @pragma("vm:entry-point")
+  static Future<bool> pushError(NotificationErrorModel error) async {
+    final prefs = await preferences;
+    final listData = prefs.getStringList(notificationErrors) ?? [];
+    listData.add(jsonEncode(error.toJson()));
+    return prefs.setStringList(notificationErrors, listData);
+  }
+
+  @pragma("vm:entry-point")
+  static Future<void> updateErrors(List<NotificationErrorModel> errors) async {
+    try {
+      final prefs = await preferences;
+      final listData = errors.map((e) => jsonEncode(e.toJson())).toList();
+      await prefs.setStringList(notificationErrors, listData);
+    } catch (_) {}
+  }
+
+  @pragma("vm:entry-point")
+  static Future<bool> clearErrors() async {
+    final prefs = await preferences;
+    return prefs.remove(notificationErrors);
   }
 }
